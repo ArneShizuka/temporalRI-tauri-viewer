@@ -1,5 +1,5 @@
 [package]
-name = "temporalRI-tauri-viewer"
+name = "temporal_ri_tauri_viewer"
 version = "0.0.0"
 description = "A Tauri App"
 authors = ["you"]
