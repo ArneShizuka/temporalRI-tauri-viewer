@@ -30,7 +30,7 @@
         "icons/icon.ico"
       ],
       "resources": [
-        "../java/TemporalRI.jar"
+        "../java/*"
       ]
     },
     "security": {
