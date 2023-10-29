@@ -11,7 +11,7 @@ type NodeData = {
     edges: Edge[]
 }
 
-type AdjacencyList = Record<string, NodeData>
+export type AdjacencyList = Record<string, NodeData>
 
 export class Graph {
     graph: cytoscape.Core
@@ -25,10 +25,17 @@ export class Graph {
 
         this.layoutOptions = {
             name: "cose",
-            padding: 100,
+            animate: true,
+            padding: 50,
             fit: true,
             randomize: true,
+            idealEdgeLength: (edge) => {
+                return 32
+            },
             componentSpacing: 100,
+            nodeRepulsion: (node) => {
+                return 2048
+            },
         }
 
         this.styleOptions = [
