@@ -73,7 +73,11 @@ window.addEventListener("DOMContentLoaded", () => {
     // let graph = new Graph()
     // graph.buildGraph(adjList)
 
-    invoke<string>("launch_temporal_ri").then((output) => {
+    invoke<string>("launch_temporal_ri", {
+        targetPath:
+            "/home/arne/Documents/unict/thesis/net/Networks/target1.txt",
+        queryPath: "/home/arne/Documents/unict/thesis/net/Queries/query1.txt",
+    }).then((output) => {
         const cy = document.getElementById("cy")
         if (cy !== null) cy.innerText = output
     })
