@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use dunce::canonicalize;
 use std::process::{Command, Stdio};
 
 #[tauri::command]
@@ -16,7 +17,7 @@ async fn launch_temporal_ri(
 
     let output = Command::new("java")
         .arg("-jar")
-        .arg(&temporal_ri_jar_path)
+        .arg(canonicalize(temporal_ri_jar_path).unwrap())
         .arg("-t")
         .arg(target_path)
         .arg("-q")

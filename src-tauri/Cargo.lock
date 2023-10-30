@@ -2830,6 +2830,7 @@ dependencies = [
 name = "temporal_ri_tauri_viewer"
 version = "0.0.0"
 dependencies = [
+ "dunce",
  "serde",
  "serde_json",
  "tauri",
