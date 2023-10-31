@@ -136,15 +136,23 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const cy = document.getElementById("cy")
             if (cy !== null) {
-                cy.textContent = "nodes: "
+                const nodes = document.createElement("ul")
+                nodes.textContent = "nodes"
                 for (let node of nodeOccurrences) {
-                    cy.textContent += `${node} `
+                    let liNode = document.createElement("li")
+                    nodes.appendChild(liNode)
+                    liNode.textContent = node
                 }
+                cy.appendChild(nodes)
 
-                cy.textContent += "edges: "
+                const edges = document.createElement("ul")
+                edges.textContent = "edges"
                 for (let edge of edgeOccurrences) {
-                    cy.textContent += `${edge} `
+                    let liEdge = document.createElement("li")
+                    edges.appendChild(liEdge)
+                    liEdge.textContent = edge
                 }
+                cy.appendChild(edges)
             }
         })
     })
