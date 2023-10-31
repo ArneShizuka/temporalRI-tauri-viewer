@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri"
+import { open } from "@tauri-apps/api/dialog"
 
 // import { Graph, AdjacencyList } from "./graph"
 
@@ -73,12 +74,78 @@ window.addEventListener("DOMContentLoaded", () => {
     // let graph = new Graph()
     // graph.buildGraph(adjList)
 
-    invoke<string>("launch_temporal_ri", {
-        targetPath:
-            "/home/arne/Documents/unict/thesis/net/Networks/target1.txt",
-        queryPath: "/home/arne/Documents/unict/thesis/net/Queries/query1.txt",
-    }).then((output) => {
-        const cy = document.getElementById("cy")
-        if (cy !== null) cy.innerText = output
+    const target = document.getElementById("target-btn") as HTMLButtonElement
+    const query = document.getElementById("query-btn") as HTMLButtonElement
+    const RiBtn = document.getElementById("RI-btn") as HTMLButtonElement
+    let targetPath: string
+    let queryPath: string
+
+    target.addEventListener("click", async () => {
+        const selected = await open({
+            multiple: false,
+            filters: [
+                {
+                    name: "Open Target File",
+                    extensions: ["txt", "json"],
+                },
+            ],
+        })
+
+        targetPath = selected as string
+        const targetLabel = document.getElementById(
+            "target-label"
+        ) as HTMLLabelElement
+        targetLabel.textContent = `Target File: ${targetPath}`
+    })
+
+    query.addEventListener("click", async () => {
+        const selected = await open({
+            multiple: false,
+            filters: [
+                {
+                    name: "Open Query File",
+                    extensions: ["txt", "json"],
+                },
+            ],
+        })
+
+        queryPath = selected as string
+        const queryLabel = document.getElementById(
+            "query-label"
+        ) as HTMLLabelElement
+        queryLabel.textContent = `Query File: ${queryPath}`
+    })
+
+    RiBtn.addEventListener("click", () => {
+        invoke<string>("launch_temporal_ri", {
+            targetPath: targetPath,
+            queryPath: queryPath,
+        }).then((output) => {
+            const nodeOccurrences: string[] = output
+                .split("\t")[0]
+                .split(",")
+                .map((str) => {
+                    return str.replace("(", "").replace(")", "")
+                })
+            const edgeOccurrences: string[] = output
+                .split("\t")[1]
+                .split("),(")
+                .map((str) => {
+                    return str.replace("(", "").replace(")", "")
+                })
+
+            const cy = document.getElementById("cy")
+            if (cy !== null) {
+                cy.textContent = "nodes: "
+                for (let node of nodeOccurrences) {
+                    cy.textContent += `${node} `
+                }
+
+                cy.textContent += "edges: "
+                for (let edge of edgeOccurrences) {
+                    cy.textContent += `${edge} `
+                }
+            }
+        })
     })
 })
