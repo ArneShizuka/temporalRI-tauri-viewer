@@ -1,82 +1,15 @@
 import { invoke } from "@tauri-apps/api/tauri"
 import { open } from "@tauri-apps/api/dialog"
+import { readTextFile } from "@tauri-apps/api/fs"
 
-// import { Graph, AdjacencyList } from "./graph"
+import { Graph, AdjacencyList } from "./graph"
 
 window.addEventListener("DOMContentLoaded", () => {
-    // const adjList: AdjacencyList = {
-    //     "1": {
-    //         label: "a",
-    //         edges: [
-    //             {
-    //                 target: "2",
-    //                 timestamp: "3",
-    //                 label: "b",
-    //             },
-    //         ],
-    //     },
-    //     "2": {
-    //         label: "a",
-    //         edges: [
-    //             {
-    //                 target: "6",
-    //                 timestamp: "17",
-    //                 label: "b",
-    //             },
-    //         ],
-    //     },
-    //     "3": {
-    //         label: "a",
-    //         edges: [
-    //             {
-    //                 target: "6",
-    //                 timestamp: "14",
-    //                 label: "b",
-    //             },
-    //         ],
-    //     },
-    //     "4": {
-    //         label: "a",
-    //         edges: [
-    //             {
-    //                 target: "7",
-    //                 timestamp: "8",
-    //                 label: "b",
-    //             },
-    //         ],
-    //     },
-    //     "5": {
-    //         label: "a",
-    //         edges: [
-    //             {
-    //                 target: "7",
-    //                 timestamp: "2",
-    //                 label: "b",
-    //             },
-    //         ],
-    //     },
-    //     "6": {
-    //         label: "a",
-    //         edges: [],
-    //     },
-    //     "7": {
-    //         label: "a",
-    //         edges: [
-    //             {
-    //                 target: "6",
-    //                 timestamp: "13",
-    //                 label: "b",
-    //             },
-    //         ],
-    //     },
-    // }
-
-    // let graph = new Graph()
-    // graph.buildGraph(adjList)
-
     const target = document.getElementById("target-btn") as HTMLButtonElement
     const query = document.getElementById("query-btn") as HTMLButtonElement
-    const RiBtn = document.getElementById("RI-btn") as HTMLButtonElement
+    const RiBtn = document.getElementById("ri-btn") as HTMLButtonElement
+    const loadGraph = document.getElementById("load-graph") as HTMLButtonElement
+
     let targetPath: string
     let queryPath: string
 
@@ -116,43 +49,66 @@ window.addEventListener("DOMContentLoaded", () => {
         queryLabel.textContent = `Query File: ${queryPath}`
     })
 
+    loadGraph.addEventListener("click", () => {
+        if (targetPath !== null) {
+            readTextFile(targetPath).then((targetFile): void => {
+                console.log(targetFile)
+            })
+        }
+    })
+
     RiBtn.addEventListener("click", () => {
         invoke<string>("launch_temporal_ri", {
             targetPath: targetPath,
             queryPath: queryPath,
-        }).then((output) => {
-            const nodeOccurrences: string[] = output
-                .split("\t")[0]
-                .split(",")
-                .map((str) => {
-                    return str.replace("(", "").replace(")", "")
-                })
-            const edgeOccurrences: string[] = output
-                .split("\t")[1]
-                .split("),(")
-                .map((str) => {
-                    return str.replace("(", "").replace(")", "")
-                })
-
-            const cy = document.getElementById("cy")
-            if (cy !== null) {
-                const nodes = document.createElement("ul")
-                nodes.textContent = "nodes"
-                for (let node of nodeOccurrences) {
-                    let liNode = document.createElement("li")
-                    nodes.appendChild(liNode)
-                    liNode.textContent = node
+        }).then((output): void => {
+            if (output === "No occurrences found") {
+                console.log(output)
+            } else {
+                const outputArticle = document.getElementById("output")
+                if (outputArticle !== null) {
+                    outputArticle.innerHTML = ""
                 }
-                cy.appendChild(nodes)
+                for (const [index, occ] of output.split("\n").entries()) {
+                    const nodeOccurrences: string[] = occ
+                        .split("\t")[0]
+                        .split(",")
+                        .map((str) => {
+                            return str.replace("(", "").replace(")", "")
+                        })
+                    const edgeOccurrences: string[] = occ
+                        .split("\t")[1]
+                        .split("),(")
+                        .map((str) => {
+                            return str.replace("(", "").replace(")", "")
+                        })
 
-                const edges = document.createElement("ul")
-                edges.textContent = "edges"
-                for (let edge of edgeOccurrences) {
-                    let liEdge = document.createElement("li")
-                    edges.appendChild(liEdge)
-                    liEdge.textContent = edge
+                    const card = document.createElement("details")
+                    const summary = document.createElement("summary")
+                    const nodes = document.createElement("ul")
+                    const edges = document.createElement("ul")
+
+                    summary.textContent = `#${index + 1}`
+                    nodes.textContent = "nodes"
+                    edges.textContent = "edges"
+
+                    card.appendChild(summary)
+                    card.appendChild(nodes)
+                    card.appendChild(edges)
+                    outputArticle?.appendChild(card)
+
+                    for (let node of nodeOccurrences) {
+                        let liNode = document.createElement("li")
+                        nodes.appendChild(liNode)
+                        liNode.textContent = node
+                    }
+
+                    for (let edge of edgeOccurrences) {
+                        let liEdge = document.createElement("li")
+                        edges.appendChild(liEdge)
+                        liEdge.textContent = edge
+                    }
                 }
-                cy.appendChild(edges)
             }
         })
     })
