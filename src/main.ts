@@ -52,7 +52,39 @@ window.addEventListener("DOMContentLoaded", () => {
     loadGraph.addEventListener("click", () => {
         if (targetPath !== null) {
             readTextFile(targetPath).then((targetFile): void => {
-                console.log(targetFile)
+                let lines: string[] = targetFile
+                    .replaceAll("\r", "")
+                    .split("\n")
+                const numNodes: number = parseInt(lines.shift() as string)
+
+                let adjList: AdjacencyList = {}
+
+                if (lines[lines.length - 1] === "") lines.pop()
+
+                for (let i = 0; i < numNodes; i++) {
+                    adjList[lines[i].split("\t")[0]] = {
+                        label: lines[i].split("\t")[1],
+                        edges: [],
+                    }
+                }
+
+                for (let i = numNodes; i < lines.length; i++) {
+                    const source = lines[i].split("\t")[0]
+                    const target = lines[i].split("\t")[1]
+                    const timestamp = lines[i].split("\t")[2].split(":")[0]
+                    const label = lines[i].split("\t")[2].split(":")[1]
+
+                    adjList[source]["edges"].push({
+                        label: label,
+                        target: target,
+                        timestamp: timestamp,
+                    })
+                }
+
+                let graph = new Graph()
+                graph.buildGraph(adjList)
+                graph.graph.nodes().forEach((node) => console.log(node.data()))
+                graph.graph.edges().forEach((edge) => console.log(edge.data()))
             })
         }
     })

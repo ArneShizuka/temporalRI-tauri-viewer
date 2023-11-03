@@ -10,12 +10,20 @@
 
     <body>
         <main class="container">
-            <label for="target-btn" id="target-label">Target file: </label>
-            <button id="target-btn">Select file...</button>
-            <label for="query" id="query-label">Query file: </label>
-            <button id="query-btn">Select file...</button>
-            <button id="load-graph" class="secondary">Load Target Graph</button>
-            <article id="cy"></article>
+            <div class="grid">
+                <div>
+                    <label for="target-btn" id="target-label"
+                        >Target file:
+                    </label>
+                    <button id="target-btn">Select file...</button>
+                    <label for="query" id="query-label">Query file: </label>
+                    <button id="query-btn">Select file...</button>
+                    <button id="load-graph" class="secondary">
+                        Load Target Graph
+                    </button>
+                </div>
+                <div id="cy"></div>
+            </div>
             <button id="ri-btn" type="button">Find Occurrences</button>
             <article id="output"></article>
         </main>
