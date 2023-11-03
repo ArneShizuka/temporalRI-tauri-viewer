@@ -88,7 +88,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     const nodes = document.createElement("ul")
                     const edges = document.createElement("ul")
 
-                    summary.textContent = `#${index + 1}`
+                    summary.textContent = `# ${index + 1}`
                     nodes.textContent = "nodes"
                     edges.textContent = "edges"
 
