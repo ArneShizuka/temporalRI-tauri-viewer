@@ -26,11 +26,11 @@ export class Graph {
         this.layoutOptions = {
             name: "cose",
             animate: true,
-            padding: 50,
+            padding: 80,
             fit: true,
             randomize: true,
             idealEdgeLength: (edge) => {
-                return 32
+                return 16
             },
             componentSpacing: 100,
             nodeRepulsion: (node) => {
@@ -43,6 +43,7 @@ export class Graph {
                 selector: "node",
                 style: {
                     label: "data(label)",
+                    backgroundColor: "#999999",
                 },
             },
             {
@@ -54,6 +55,14 @@ export class Graph {
                     "target-arrow-color": "#ccc",
                     "target-arrow-shape": "triangle",
                     "curve-style": "bezier",
+                },
+            },
+            {
+                selector: ".occurrence",
+                style: {
+                    backgroundColor: "red",
+                    "line-color": "red",
+                    "target-arrow-color": "red",
                 },
             },
         ]
@@ -101,5 +110,10 @@ export class Graph {
         this.graph.elements().on("tap", (e) => {
             console.log(e.target.data())
         })
+    }
+
+    removeOccurrence() {
+        this.graph.nodes().removeClass("occurrence")
+        this.graph.edges().removeClass("occurrence")
     }
 }

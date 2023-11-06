@@ -4,6 +4,12 @@ import { readTextFile } from "@tauri-apps/api/fs"
 
 import { Graph, AdjacencyList } from "./graph"
 
+declare global {
+    interface Window {
+        graph: Graph
+    }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     const target = document.getElementById("target-btn") as HTMLButtonElement
     const query = document.getElementById("query-btn") as HTMLButtonElement
@@ -12,6 +18,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     let targetPath: string
     let queryPath: string
+    let graph: Graph | null
 
     target.addEventListener("click", async () => {
         const selected = await open({
@@ -81,10 +88,9 @@ window.addEventListener("DOMContentLoaded", () => {
                     })
                 }
 
-                let graph = new Graph()
+                graph = new Graph()
                 graph.buildGraph(adjList)
-                graph.graph.nodes().forEach((node) => console.log(node.data()))
-                graph.graph.edges().forEach((edge) => console.log(edge.data()))
+                window.graph = graph
             })
         }
     })
@@ -94,52 +100,96 @@ window.addEventListener("DOMContentLoaded", () => {
             targetPath: targetPath,
             queryPath: queryPath,
         }).then((output): void => {
-            if (output === "No occurrences found") {
-                console.log(output)
+            const outputArticle = document.getElementById("output")
+            if (output === "") {
+                if (outputArticle !== null) {
+                    outputArticle.textContent = "No occurrences found"
+                }
             } else {
-                const outputArticle = document.getElementById("output")
                 if (outputArticle !== null) {
                     outputArticle.innerHTML = ""
                 }
-                for (const [index, occ] of output.split("\n").entries()) {
-                    const nodeOccurrences: string[] = occ
+                const occurrences = output.split("\n")
+                for (let index = 0; index < occurrences.length; index++) {
+                    let nodeOccurrences: string[] = occurrences[index]
                         .split("\t")[0]
                         .split(",")
                         .map((str) => {
-                            return str.replace("(", "").replace(")", "")
+                            return str
+                                .replace("(", "")
+                                .replace(")", "")
+                                .split(":")[0]
                         })
-                    const edgeOccurrences: string[] = occ
+                    let edgeOccurrences: {
+                        source: string
+                        dest: string
+                        timestamp: string
+                    }[] = occurrences[index]
                         .split("\t")[1]
                         .split("),(")
                         .map((str) => {
                             return str.replace("(", "").replace(")", "")
                         })
+                        .map((str) => {
+                            return {
+                                source: str.split(",")[0],
+                                dest: str.split(",")[1],
+                                timestamp: str.split(",")[2].split(":")[0],
+                            }
+                        })
 
                     const card = document.createElement("details")
                     const summary = document.createElement("summary")
+                    const grid = document.createElement("div")
                     const nodes = document.createElement("ul")
                     const edges = document.createElement("ul")
+                    const showBtn = document.createElement("button")
 
                     summary.textContent = `# ${index + 1}`
-                    nodes.textContent = "nodes"
-                    edges.textContent = "edges"
+                    nodes.textContent = "Nodes"
+                    edges.textContent = "Edges"
+                    showBtn.textContent = "Show in Graph"
+
+                    grid.className = "grid"
 
                     card.appendChild(summary)
-                    card.appendChild(nodes)
-                    card.appendChild(edges)
+                    card.appendChild(grid)
+                    grid.appendChild(nodes)
+                    grid.appendChild(edges)
+                    card.appendChild(showBtn)
                     outputArticle?.appendChild(card)
 
-                    for (let node of nodeOccurrences) {
+                    for (let i = 0; i < nodeOccurrences.length; i++) {
                         let liNode = document.createElement("li")
                         nodes.appendChild(liNode)
-                        liNode.textContent = node
+                        liNode.textContent = `id: ${nodeOccurrences[i]}`
                     }
 
-                    for (let edge of edgeOccurrences) {
+                    for (let i = 0; i < edgeOccurrences.length; i++) {
                         let liEdge = document.createElement("li")
                         edges.appendChild(liEdge)
-                        liEdge.textContent = edge
+                        liEdge.innerHTML = `source: ${edgeOccurrences[i].source}<br>`
+                        liEdge.innerHTML += `dest: ${edgeOccurrences[i].dest}<br>`
+                        liEdge.innerHTML += `timestamp: ${edgeOccurrences[i].timestamp}`
                     }
+
+                    showBtn.addEventListener("click", () => {
+                        if (graph !== null) {
+                            graph.removeOccurrence()
+                            nodeOccurrences.forEach((node) => {
+                                graph?.graph
+                                    .$id(`${node}`)
+                                    .addClass("occurrence")
+                            })
+                            edgeOccurrences.forEach((edge) => {
+                                graph?.graph
+                                    .$(
+                                        `edge[source="${edge.source}"][target="${edge.dest}"][timestamp="${edge.timestamp}"]`
+                                    )
+                                    .addClass("occurrence")
+                            })
+                        }
+                    })
                 }
             }
         })
