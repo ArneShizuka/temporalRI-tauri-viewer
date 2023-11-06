@@ -60,9 +60,9 @@ export class Graph {
             {
                 selector: ".occurrence",
                 style: {
-                    backgroundColor: "red",
-                    "line-color": "red",
-                    "target-arrow-color": "red",
+                    backgroundColor: "#1095c1",
+                    "line-color": "#0b6d8e",
+                    "target-arrow-color": "#0b6d8e",
                 },
             },
         ]
