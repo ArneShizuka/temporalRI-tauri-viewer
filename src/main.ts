@@ -188,6 +188,7 @@ window.addEventListener("DOMContentLoaded", () => {
                                     )
                                     .addClass("occurrence")
                             })
+                            graph.graph.fit(graph.graph.$(".occurrence"), 50)
                         }
                     })
                 }
