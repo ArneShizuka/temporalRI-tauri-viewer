@@ -108,19 +108,17 @@ window.addEventListener("DOMContentLoaded", () => {
     })
 
     RiBtn.addEventListener("click", () => {
+        const outputArticle = document.getElementById("output") as HTMLElement
+        outputArticle.ariaBusy = "true"
         invoke<string>("launch_temporal_ri", {
             targetPath: targetPath,
             queryPath: queryPath,
         }).then((output): void => {
-            const outputArticle = document.getElementById("output")
+            outputArticle.ariaBusy = ""
             if (output === "") {
-                if (outputArticle !== null) {
-                    outputArticle.textContent = "No occurrences found"
-                }
+                outputArticle.textContent = "No occurrences found"
             } else {
-                if (outputArticle !== null) {
-                    outputArticle.innerHTML = ""
-                }
+                outputArticle.innerHTML = ""
                 occurrences = output.split("\n")
                 for (let index = 0; index < occurrences.length; index++) {
                     let nodeOccurrences: string[] = occurrences[index]
