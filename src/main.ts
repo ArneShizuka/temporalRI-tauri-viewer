@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri"
-import { open } from "@tauri-apps/api/dialog"
+import { open, save } from "@tauri-apps/api/dialog"
 import { readTextFile } from "@tauri-apps/api/fs"
 
 import { Graph, AdjacencyList } from "./graph"
@@ -14,11 +14,17 @@ window.addEventListener("DOMContentLoaded", () => {
     const target = document.getElementById("target-btn") as HTMLButtonElement
     const query = document.getElementById("query-btn") as HTMLButtonElement
     const RiBtn = document.getElementById("ri-btn") as HTMLButtonElement
-    const loadGraph = document.getElementById("load-graph") as HTMLButtonElement
+    const loadGraphBtn = document.getElementById(
+        "load-graph-btn"
+    ) as HTMLButtonElement
+    const saveOccBtn = document.getElementById(
+        "save-occ-btn"
+    ) as HTMLButtonElement
 
     let targetPath: string
     let queryPath: string
     let graph: Graph | null
+    let occurrences: string[]
 
     target.addEventListener("click", async () => {
         const selected = await open({
@@ -62,7 +68,7 @@ window.addEventListener("DOMContentLoaded", () => {
         )}`
     })
 
-    loadGraph.addEventListener("click", () => {
+    loadGraphBtn.addEventListener("click", () => {
         if (targetPath !== null) {
             readTextFile(targetPath).then((targetFile): void => {
                 let lines: string[] = targetFile
@@ -115,7 +121,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 if (outputArticle !== null) {
                     outputArticle.innerHTML = ""
                 }
-                const occurrences = output.split("\n")
+                occurrences = output.split("\n")
                 for (let index = 0; index < occurrences.length; index++) {
                     let nodeOccurrences: string[] = occurrences[index]
                         .split("\t")[0]
@@ -199,6 +205,17 @@ window.addEventListener("DOMContentLoaded", () => {
                     })
                 }
             }
+        })
+    })
+
+    saveOccBtn.addEventListener("click", async () => {
+        const selected = await save({
+            filters: [
+                {
+                    name: "Occurrences File",
+                    extensions: ["txt"],
+                },
+            ],
         })
     })
 })
