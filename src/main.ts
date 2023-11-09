@@ -35,7 +35,10 @@ window.addEventListener("DOMContentLoaded", () => {
         const targetLabel = document.getElementById(
             "target-label"
         ) as HTMLLabelElement
-        targetLabel.textContent = `Target File: ${targetPath}`
+        targetLabel.textContent = `Target File: ${targetPath.replace(
+            /^.*[\\/]/,
+            ""
+        )}`
     })
 
     query.addEventListener("click", async () => {
@@ -53,7 +56,10 @@ window.addEventListener("DOMContentLoaded", () => {
         const queryLabel = document.getElementById(
             "query-label"
         ) as HTMLLabelElement
-        queryLabel.textContent = `Query File: ${queryPath}`
+        queryLabel.textContent = `Query File: ${queryPath.replace(
+            /^.*[\\/]/,
+            ""
+        )}`
     })
 
     loadGraph.addEventListener("click", () => {
@@ -188,7 +194,7 @@ window.addEventListener("DOMContentLoaded", () => {
                                     )
                                     .addClass("occurrence")
                             })
-                            graph.graph.fit(graph.graph.$(".occurrence"), 50)
+                            graph.graph.fit(graph.graph.$(".occurrence"), 150)
                         }
                     })
                 }
