@@ -187,7 +187,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
                     showBtn.addEventListener("click", () => {
                         if (graph !== null) {
-                            graph.removeOccurrence()
+                            graph.removeOccurrences()
                             nodeOccurrences.forEach((node) => {
                                 graph?.graph
                                     .$id(`${node}`)

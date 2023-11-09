@@ -112,8 +112,7 @@ export class Graph {
         })
     }
 
-    removeOccurrence() {
-        this.graph.nodes().removeClass("occurrence")
-        this.graph.edges().removeClass("occurrence")
+    removeOccurrences() {
+        this.graph.$(".occurrence").removeClass("occurrence")
     }
 }
