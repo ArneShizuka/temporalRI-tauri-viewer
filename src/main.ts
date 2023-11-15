@@ -110,6 +110,7 @@ window.addEventListener("DOMContentLoaded", () => {
     RiBtn.addEventListener("click", () => {
         const outputArticle = document.getElementById("output") as HTMLElement
         outputArticle.ariaBusy = "true"
+        outputArticle.innerHTML = ""
         invoke<string>("launch_temporal_ri", {
             targetPath: targetPath,
             queryPath: queryPath,
@@ -215,5 +216,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 },
             ],
         })
+
+        console.log(selected)
     })
 })
