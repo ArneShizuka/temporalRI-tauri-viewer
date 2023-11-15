@@ -29,11 +29,11 @@ export class Graph {
             padding: 80,
             fit: true,
             randomize: true,
-            idealEdgeLength: (edge) => {
+            idealEdgeLength: (_edge) => {
                 return 16
             },
             componentSpacing: 100,
-            nodeRepulsion: (node) => {
+            nodeRepulsion: (_node) => {
                 return 2048
             },
         }
