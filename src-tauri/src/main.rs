@@ -2,7 +2,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use dunce::canonicalize;
-use std::process::{Command, Stdio};
+use std::{
+    os::windows::process::CommandExt,
+    process::{Command, Stdio},
+};
 
 #[tauri::command]
 async fn launch_temporal_ri(
@@ -10,6 +13,8 @@ async fn launch_temporal_ri(
     target_path: String,
     query_path: String,
 ) -> String {
+    const CREATE_NO_WINDOW: u32 = 0x08000000;
+
     let temporal_ri_jar_path = handle
         .path_resolver()
         .resolve_resource("../java/TemporalRI.jar")
@@ -23,6 +28,7 @@ async fn launch_temporal_ri(
         .arg("-q")
         .arg(query_path)
         .arg("-o")
+        .creation_flags(CREATE_NO_WINDOW)
         .stdout(Stdio::piped())
         .output()
         .unwrap();
