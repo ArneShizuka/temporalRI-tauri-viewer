@@ -2,10 +2,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use dunce::canonicalize;
-use std::{
-    os::windows::process::CommandExt,
-    process::{Command, Stdio},
-};
+use std::process::{Command, Stdio};
+
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
 
 #[tauri::command]
 async fn launch_temporal_ri(
@@ -13,25 +13,29 @@ async fn launch_temporal_ri(
     target_path: String,
     query_path: String,
 ) -> String {
-    const CREATE_NO_WINDOW: u32 = 0x08000000;
-
     let temporal_ri_jar_path = handle
         .path_resolver()
         .resolve_resource("../java/TemporalRI.jar")
         .expect("failed to resolve TemporalRi.jar");
 
-    let output = Command::new("java")
-        .arg("-jar")
+    let mut cmd = Command::new("java");
+
+    cmd.arg("-jar")
         .arg(canonicalize(temporal_ri_jar_path).unwrap())
         .arg("-t")
         .arg(target_path)
         .arg("-q")
         .arg(query_path)
         .arg("-o")
-        .creation_flags(CREATE_NO_WINDOW)
-        .stdout(Stdio::piped())
-        .output()
-        .unwrap();
+        .stdout(Stdio::piped());
+
+    #[cfg(windows)]
+    {
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+
+    let output = cmd.output().unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
 
