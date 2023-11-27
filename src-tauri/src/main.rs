@@ -41,13 +41,18 @@ async fn launch_temporal_ri(
         cmd.creation_flags(CREATE_NO_WINDOW);
     }
 
-    let output = cmd.output().unwrap();
+    let output_result = cmd.output();
 
-    let stdout = String::from_utf8(output.stdout).unwrap();
-
-    let result = process_output(&stdout).unwrap_or_else(|| "No occurrences found".to_string());
-
-    Ok(result)
+    match output_result {
+        Ok(output) => {
+            // Process the output
+            let stdout = String::from_utf8(output.stdout).unwrap();
+            let result =
+                process_output(&stdout).unwrap_or_else(|| "No occurrences found".to_string());
+            Ok(result)
+        }
+        Err(err) => Err(format!("Failed to execute command: {}", err)),
+    }
 }
 
 fn process_output(output: &str) -> Option<String> {
