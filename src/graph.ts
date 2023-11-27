@@ -26,7 +26,7 @@ export class Graph {
         this.layoutOptions = {
             name: "cose",
             animate: true,
-            padding: 80,
+            padding: 100,
             fit: true,
             randomize: true,
             idealEdgeLength: (_edge) => {
@@ -132,7 +132,7 @@ export class Graph {
                 .addClass("occurrence")
         })
 
-        this.graph.fit(this.graph.$(".occurrence"), 150)
+        this.graph.fit(this.graph.$(".occurrence"), 100)
     }
 
     removeOccurrences() {
