@@ -34,6 +34,7 @@ async fn launch_temporal_ri(
         .arg("-o")
         .stdout(Stdio::piped());
 
+    // Prevents cmd window to be created on Windows
     #[cfg(windows)]
     {
         const CREATE_NO_WINDOW: u32 = 0x08000000;
