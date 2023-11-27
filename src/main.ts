@@ -187,19 +187,10 @@ window.addEventListener("DOMContentLoaded", () => {
                     showBtn.addEventListener("click", () => {
                         if (graph !== null) {
                             graph.removeOccurrences()
-                            nodeOccurrences.forEach((node) => {
-                                graph?.graph
-                                    .$id(`${node}`)
-                                    .addClass("occurrence")
-                            })
-                            edgeOccurrences.forEach((edge) => {
-                                graph?.graph
-                                    .$(
-                                        `edge[source="${edge.source}"][target="${edge.dest}"][timestamp="${edge.timestamp}"]`
-                                    )
-                                    .addClass("occurrence")
-                            })
-                            graph.graph.fit(graph.graph.$(".occurrence"), 150)
+                            graph.showOccurrence(
+                                nodeOccurrences,
+                                edgeOccurrences
+                            )
                         }
                     })
                 }

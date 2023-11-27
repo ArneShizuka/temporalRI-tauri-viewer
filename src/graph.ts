@@ -112,6 +112,29 @@ export class Graph {
         })
     }
 
+    showOccurrence(
+        nodes: string[],
+        edges: {
+            source: string
+            dest: string
+            timestamp: string
+        }[]
+    ): void {
+        nodes.forEach((node) => {
+            this.graph.$id(node).addClass("occurrence")
+        })
+
+        edges.forEach((edge) => {
+            this.graph
+                .$(
+                    `edge[source="${edge.source}"][target="${edge.dest}"][timestamp="${edge.timestamp}"]`
+                )
+                .addClass("occurrence")
+        })
+
+        this.graph.fit(this.graph.$(".occurrence"), 150)
+    }
+
     removeOccurrences() {
         this.graph.$(".occurrence").removeClass("occurrence")
     }
