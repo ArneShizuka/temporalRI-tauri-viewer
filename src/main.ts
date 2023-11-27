@@ -13,7 +13,13 @@ declare global {
 window.addEventListener("DOMContentLoaded", () => {
     const target = document.getElementById("target-btn") as HTMLButtonElement
     const query = document.getElementById("query-btn") as HTMLButtonElement
-    const RiBtn = document.getElementById("ri-btn") as HTMLButtonElement
+    const deltaInput = document.getElementById(
+        "delta-input"
+    ) as HTMLInputElement
+    const undirectedInput = document.getElementById(
+        "undirected-input"
+    ) as HTMLInputElement
+    const riBtn = document.getElementById("ri-btn") as HTMLButtonElement
     const loadGraphBtn = document.getElementById(
         "load-graph-btn"
     ) as HTMLButtonElement
@@ -21,106 +27,49 @@ window.addEventListener("DOMContentLoaded", () => {
         "save-occ-btn"
     ) as HTMLButtonElement
 
-    let targetPath: string
-    let queryPath: string
-    let graph: Graph | null
+    let targetPath: string | null = null
+    let queryPath: string | null = null
+    let delta: string = "inf"
+    let graph: Graph | null = null
     let occurrences: string[]
 
-    target.addEventListener("click", async () => {
-        const selected = await open({
-            multiple: false,
-            filters: [
-                {
-                    name: "Open Target File",
-                    extensions: ["txt", "json"],
-                },
-            ],
-        })
-
-        targetPath = selected as string
-        const targetLabel = document.getElementById(
-            "target-label"
-        ) as HTMLLabelElement
-        targetLabel.textContent = `Target File: ${targetPath.replace(
-            /^.*[\\/]/,
-            ""
-        )}`
-    })
-
-    query.addEventListener("click", async () => {
-        const selected = await open({
-            multiple: false,
-            filters: [
-                {
-                    name: "Open Query File",
-                    extensions: ["txt", "json"],
-                },
-            ],
-        })
-
-        queryPath = selected as string
-        const queryLabel = document.getElementById(
-            "query-label"
-        ) as HTMLLabelElement
-        queryLabel.textContent = `Query File: ${queryPath.replace(
-            /^.*[\\/]/,
-            ""
-        )}`
-    })
-
-    loadGraphBtn.addEventListener("click", () => {
-        if (targetPath !== null) {
-            readTextFile(targetPath).then((targetFile): void => {
-                let lines: string[] = targetFile
-                    .replaceAll("\r", "")
-                    .split("\n")
-                const numNodes: number = parseInt(lines.shift() as string)
-
-                let adjList: AdjacencyList = {}
-
-                if (lines[lines.length - 1] === "") lines.pop()
-
-                for (let i = 0; i < numNodes; i++) {
-                    adjList[lines[i].split("\t")[0]] = {
-                        label: lines[i].split("\t")[1],
-                        edges: [],
-                    }
-                }
-
-                for (let i = numNodes; i < lines.length; i++) {
-                    const source = lines[i].split("\t")[0]
-                    const target = lines[i].split("\t")[1]
-                    const timestamp = lines[i].split("\t")[2].split(":")[0]
-                    const label = lines[i].split("\t")[2].split(":")[1]
-
-                    adjList[source]["edges"].push({
-                        label: label,
-                        target: target,
-                        timestamp: timestamp,
-                    })
-                }
-
-                graph = new Graph()
-                graph.buildGraph(adjList)
-                window.graph = graph
-            })
-        }
-    })
-
-    RiBtn.addEventListener("click", () => {
+    const handleRiBtnClick = () => {
         const outputArticle = document.getElementById("output") as HTMLElement
-        outputArticle.ariaBusy = "true"
         outputArticle.innerHTML = ""
+
+        if (targetPath === null) {
+            target.classList.add("invalid")
+            outputArticle.textContent = "Missing target file!"
+            return
+        }
+
+        if (queryPath === null) {
+            query.classList.add("invalid")
+            outputArticle.textContent = "Missing query file!"
+            return
+        }
+
+        const undirected: string = (!undirectedInput.checked).toString()
+        outputArticle.ariaBusy = "true"
+
         invoke<string>("launch_temporal_ri", {
             targetPath: targetPath,
             queryPath: queryPath,
-        }).then((output): void => {
-            outputArticle.ariaBusy = ""
-            if (output === "") {
-                outputArticle.textContent = "No occurrences found"
-            } else {
+            delta,
+            undirected,
+        })
+            .then((output): void => {
+                console.log(output)
+                outputArticle.ariaBusy = "false"
+
+                if (output === "No occurrences found") {
+                    outputArticle.textContent = output
+                    return
+                }
+
                 outputArticle.innerHTML = ""
                 occurrences = output.split("\n")
+
                 for (let index = 0; index < occurrences.length; index++) {
                     let nodeOccurrences: string[] = occurrences[index]
                         .split("\t")[0]
@@ -131,6 +80,7 @@ window.addEventListener("DOMContentLoaded", () => {
                                 .replace(")", "")
                                 .split(":")[0]
                         })
+
                     let edgeOccurrences: {
                         source: string
                         dest: string
@@ -194,9 +144,116 @@ window.addEventListener("DOMContentLoaded", () => {
                         }
                     })
                 }
+            })
+            .catch((err): void => {
+                outputArticle.ariaBusy = "false"
+                outputArticle.textContent =
+                    "There were some errors in the backend"
+
+                console.error(err)
+            })
+    }
+
+    target.addEventListener("click", async () => {
+        const selected = await open({
+            multiple: false,
+            filters: [
+                {
+                    name: "Open Target File",
+                    extensions: ["txt"],
+                },
+            ],
+        })
+
+        targetPath = selected as string
+        const targetLabel = document.getElementById(
+            "target-label"
+        ) as HTMLLabelElement
+        targetLabel.textContent = `Target File: ${targetPath.replace(
+            /^.*[\\/]/,
+            ""
+        )}`
+
+        target.classList.remove("invalid")
+    })
+
+    query.addEventListener("click", async () => {
+        const selected = await open({
+            multiple: false,
+            filters: [
+                {
+                    name: "Open Query File",
+                    extensions: ["txt"],
+                },
+            ],
+        })
+
+        queryPath = selected as string
+        const queryLabel = document.getElementById(
+            "query-label"
+        ) as HTMLLabelElement
+        queryLabel.textContent = `Query File: ${queryPath.replace(
+            /^.*[\\/]/,
+            ""
+        )}`
+
+        query.classList.remove("invalid")
+    })
+
+    deltaInput.addEventListener("input", (event) => {
+        const target = event.target as HTMLInputElement
+
+        if (target.value.startsWith("-") || target.value.indexOf(".") !== -1) {
+            deltaInput.ariaInvalid = "true"
+            return
+        }
+
+        deltaInput.ariaInvalid = null
+
+        delta = deltaInput.value !== "" ? deltaInput.value : "inf"
+    })
+
+    loadGraphBtn.addEventListener("click", () => {
+        if (targetPath === null) {
+            target.classList.add("invalid")
+            return
+        }
+
+        readTextFile(targetPath).then((targetFile): void => {
+            let lines: string[] = targetFile.replaceAll("\r", "").split("\n")
+            const numNodes: number = parseInt(lines.shift() as string)
+
+            let adjList: AdjacencyList = {}
+
+            if (lines[lines.length - 1] === "") lines.pop()
+
+            for (let i = 0; i < numNodes; i++) {
+                adjList[lines[i].split("\t")[0]] = {
+                    label: lines[i].split("\t")[1],
+                    edges: [],
+                }
             }
+
+            for (let i = numNodes; i < lines.length; i++) {
+                const source = lines[i].split("\t")[0]
+                const target = lines[i].split("\t")[1]
+                const timestamp = lines[i].split("\t")[2].split(":")[0]
+                const label = lines[i].split("\t")[2].split(":")[1]
+
+                adjList[source]["edges"].push({
+                    label: label,
+                    target: target,
+                    timestamp: timestamp,
+                })
+            }
+
+            graph = new Graph()
+            graph.buildGraph(adjList)
+            window.graph = graph
         })
     })
+
+    riBtn.addEventListener("click", handleRiBtnClick)
 
     saveOccBtn.addEventListener("click", async () => {
         const selected = await save({

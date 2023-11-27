@@ -9,34 +9,52 @@
     </head>
 
     <body>
-        <main class="container">
-            <div class="grid">
-                <div>
+        <main class="container-fluid">
+            <div class="flex">
+                <div id="target">
                     <label for="target-btn" id="target-label"
                         >Target file:
                     </label>
                     <button id="target-btn">Select file...</button>
                 </div>
-                <div>
+                <div id="query">
                     <label for="query" id="query-label">Query file: </label>
                     <button id="query-btn">Select file...</button>
                 </div>
+                <label id="delta-label">
+                    Delta
+                    <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        placeholder="Infinity"
+                        aria-label="number"
+                        id="delta-input"
+                    />
+                </label>
+                <label>
+                    Directed
+                    <input
+                        type="checkbox"
+                        role="switch"
+                        checked
+                        id="undirected-input"
+                    />
+                </label>
             </div>
-            <button id="load-graph-btn" class="secondary">
-                Load Target Graph
-            </button>
+            <div class="flex output-container">
+                <article id="output"></article>
+                <div id="cy"></div>
+            </div>
             <div class="grid">
-                <div>
-                    <article id="output"></article>
-                </div>
-                <div>
-                    <div id="cy"></div>
-                </div>
+                <button id="load-graph-btn" class="secondary">
+                    Load Target Graph
+                </button>
+                <button id="ri-btn">Find Occurrences</button>
+                <button id="save-occ-btn" class="outline">
+                    Save Occurrences To File
+                </button>
             </div>
-            <button id="ri-btn" type="button">Find Occurrences</button>
-            <button id="save-occ-btn" class="secondary" type="button">
-                Save Occurrences To File
-            </button>
         </main>
     </body>
 </html>

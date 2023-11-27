@@ -8,10 +8,12 @@ use std::process::{Command, Stdio};
 use std::os::windows::process::CommandExt;
 
 #[tauri::command]
-async fn launch_temporal_ri(
+fn launch_temporal_ri(
     handle: tauri::AppHandle,
     target_path: &str,
     query_path: &str,
+    undirected: &str,
+    delta: &str,
 ) -> Result<String, String> {
     let temporal_ri_jar_path = handle
         .path_resolver()
@@ -34,6 +36,14 @@ async fn launch_temporal_ri(
         .arg("-o")
         .stdout(Stdio::piped());
 
+    if undirected == "true" {
+        cmd.arg("-u");
+    }
+
+    if delta != "inf" {
+        cmd.arg("-d").arg(delta);
+    }
+
     // Prevents cmd window to be created on Windows
     #[cfg(windows)]
     {
@@ -45,7 +55,6 @@ async fn launch_temporal_ri(
 
     match output_result {
         Ok(output) => {
-            // Process the output
             let stdout = String::from_utf8(output.stdout).unwrap();
             let result =
                 process_output(&stdout).unwrap_or_else(|| "No occurrences found".to_string());
