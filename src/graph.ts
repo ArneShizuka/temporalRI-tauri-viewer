@@ -49,7 +49,7 @@ export class Graph {
             {
                 selector: "edge",
                 style: {
-                    label: "data(label)",
+                    label: "data(completeLabel)",
                     width: 3,
                     "line-color": "#ccc",
                     "target-arrow-color": "#ccc",
@@ -96,6 +96,8 @@ export class Graph {
                         source: startNode,
                         target: endNode["target"],
                         timestamp: endNode["timestamp"],
+                        completeLabel:
+                            endNode["label"] + ":" + endNode["timestamp"],
                     },
                 })
             }
