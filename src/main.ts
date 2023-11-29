@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/tauri"
 import { open, save } from "@tauri-apps/api/dialog"
-import { readTextFile } from "@tauri-apps/api/fs"
+import { readTextFile, writeTextFile } from "@tauri-apps/api/fs"
 
 import { Graph, AdjacencyList } from "./graph"
 
@@ -31,7 +31,7 @@ window.addEventListener("DOMContentLoaded", () => {
     let queryPath: string | null = null
     let delta: string = "inf"
     let graph: Graph | null = null
-    let occurrences: string[]
+    let temporalRIOutput: string
 
     const handleRiBtnClick = () => {
         const outputArticle = document.getElementById("output") as HTMLElement
@@ -59,7 +59,6 @@ window.addEventListener("DOMContentLoaded", () => {
             undirected,
         })
             .then((output): void => {
-                console.log(output)
                 outputArticle.ariaBusy = "false"
 
                 if (output === "No occurrences found") {
@@ -68,7 +67,8 @@ window.addEventListener("DOMContentLoaded", () => {
                 }
 
                 outputArticle.innerHTML = ""
-                occurrences = output.split("\n")
+                temporalRIOutput = output
+                const occurrences = output.split("\n")
 
                 for (let index = 0; index < occurrences.length; index++) {
                     let nodeOccurrences: string[] = occurrences[index]
@@ -266,5 +266,8 @@ window.addEventListener("DOMContentLoaded", () => {
         })
 
         console.log(selected)
+        if (selected !== null) {
+            await writeTextFile(selected, temporalRIOutput)
+        }
     })
 })
