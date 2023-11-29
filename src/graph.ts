@@ -114,7 +114,7 @@ export class Graph {
         })
     }
 
-    showOccurrence(
+    showOccurrences(
         nodes: string[],
         edges: {
             source: string
@@ -122,6 +122,8 @@ export class Graph {
             timestamp: string
         }[]
     ): void {
+        this.graph.$(".occurrence").removeClass("occurrence")
+
         nodes.forEach((node) => {
             this.graph.$id(node).addClass("occurrence")
         })

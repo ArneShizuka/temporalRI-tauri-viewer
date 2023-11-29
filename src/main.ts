@@ -136,8 +136,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
                     showBtn.addEventListener("click", () => {
                         if (graph !== null) {
-                            graph.removeOccurrences()
-                            graph.showOccurrence(
+                            graph.showOccurrences(
                                 nodeOccurrences,
                                 edgeOccurrences
                             )
