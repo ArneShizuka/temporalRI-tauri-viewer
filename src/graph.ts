@@ -43,6 +43,8 @@ export class Graph {
                 selector: "node",
                 style: {
                     label: "data(label)",
+                    "text-halign": "center",
+                    "text-valign": "center",
                     backgroundColor: "#999999",
                 },
             },
@@ -55,6 +57,8 @@ export class Graph {
                     "target-arrow-color": "#ccc",
                     "target-arrow-shape": "triangle",
                     "curve-style": "bezier",
+                    "font-size": 9,
+                    "text-rotation": "autorotate",
                 },
             },
             {
