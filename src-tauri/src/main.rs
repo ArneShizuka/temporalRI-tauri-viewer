@@ -65,28 +65,17 @@ fn launch_temporal_ri(
 }
 
 fn process_output(output: &str) -> Option<String> {
-    if let Some(count_start) = output.find("Occurrences found:") {
-        if let Some(count_end) = output[count_start..].find("\n") {
-            let count_end = count_start + count_end;
-            if let Some(count_str) =
-                output[count_start..count_end].strip_prefix("Occurrences found:")
-            {
-                if let Ok(count) = count_str.trim().parse::<usize>() {
-                    if count > 0 {
-                        if let Some(found_index) = output.find("Edges") {
-                            if let Some(occurrences_start) = output[found_index..].find("\n") {
-                                let start = found_index + occurrences_start;
-                                if let Some(occurrences_end) = output[start..].find("Done!") {
-                                    let end = start + occurrences_end;
+    let re = regex::Regex::new(
+        r"Edges(\r|\n)(?P<occurrences>[\s\S]+?)Done! Occurrences found: (?P<count>\d+)",
+    )
+    .unwrap();
 
-                                    return Some(output[start..end].trim().to_string());
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+    if let Some(matches) = re.captures(output) {
+        if &matches["count"] == "0" {
+            return None;
         }
+
+        return Some(matches["occurrences"].trim().to_string());
     }
 
     None
